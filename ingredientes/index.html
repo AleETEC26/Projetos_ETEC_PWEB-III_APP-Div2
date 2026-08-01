@@ -5,7 +5,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.min.css" />
-    <title>Produto</title>
+    <title>Ingredientes</title>
 </head>
 
 <body>
@@ -15,31 +15,13 @@
         </header>
         <main>
             <div class="container mt-4">
-                <h2>Cadastro de Produtos</h2>
-                <form id="frmProduto">
+                <h2>Cadastro de Ingredientes</h2>
+                <form id="frmIngrediente">
                     <div class="mb-3">
-                        <label for="nome">Produtos:<span class="text-danger">*</span></label>
+                        <label for="nome">Ingrediente:<span class="text-danger">*</span></label>
                         <input type="text" name="nome" id="nome" class="form-control" required>
-                        <label for="vlvenda">Valor de venda (R$):<span class="text-danger">*</span></label>
-                        <input type="number" name="vlvenda" id="vlvenda" class="form-control" step="0.01" min="0" required>
-                        <label for="cat">Categoria:<span class="text-danger">*</span></label>
-                        <select name="cat" id="cat" class="form-control" aria-label="Default select example">Selecione uma categoria</select>
-                        <script>
-                            function carregarcategorias(){
-                                fetch(`http://localhost/Projetos_ETEC_PWEB-III_Div2/api/categorias/scategoria.php`)
-                                .then(response => response.json())
-                                .then(data => {
-                                let combobox = document.getElementById('cat');
-                                combobox.innerHTML = `<option value="" selected disable>Selecione a categoria</option>`;
-                                data.forEach(ds => {
-                                    combobox.innerHTML += `
-                                    <option value="${ds.id}">${ds.nome}</option>
-                                    // </select>`
-                                    });
-                                })
-                            }
-                            carregarcategorias();
-                        </script>
+                        <label for="vlunitario">Valor unitário:<span class="text-danger">*</span></label>
+                        <input type="number" name="vlunitario" id="vlunitario" class="form-control" step="0.01" min="0" required>
                     </div>
                     <button type="submit" class="btn btn-primary">GRAVAR</button>
                     <button type="button" id="limpar" class="btn btn-info d-none">LIMPAR</button>
@@ -48,10 +30,10 @@
                     document.getElementById('limpar').addEventListener('click', limpar);
                     function limpar(){
                         const btnLimpar = document.querySelector('#limpar');
-                        const btnGravar = document.querySelector('#frmProduto button[type="submit"]');
+                        const btnGravar = document.querySelector('#frmIngrediente button[type="submit"]');
                         const inputNome = document.querySelector('#nome');
-                        const inputValor = document.querySelector('#vlvenda');
-                        const comboCategoria = document.querySelector('#cat');
+                        const inputValor = document.querySelector('#vlunitario');
+                        // const txt = document.querySelector('#frmCategoria input[type="text"]');
 
                         btnGravar.onclick = null;
                         btnGravar.classList.remove('btn-danger');
@@ -65,7 +47,6 @@
 
                         inputNome.value = '';
                         inputValor.value = '';
-                        comboCategoria.value = '';
                     }
                 </script>
             </div>
@@ -73,95 +54,86 @@
             <div class="container mt-3">
                 <div class="row">
                     <div class="col-sm-3">
-                        <b>Produto</b>
+                        <b>Ingrediente</b>
                     </div>
                     <div class="col-sm-2">
-                        <b>Valor venda (R$)</b>
-                    </div>
-                    <div class="col-sm-4">
-                        <b>Categoria</b>
+                        <b>Valor unitário</b>
                     </div>
                 </div>
             </div>
-            <div class="container" id="gridProduto">
+            <div class="container" id="gridIngrediente">
                 <!-- aqui o javascript cria a tabela -->
             </div>
             <!-- script para conectar ao servicor da api e chamar o serviço especifico -->
             <script>
-                const apiUrl = 'http://localhost/Projetos_ETEC_PWEB-III_Div2/api/produtos/';
+                const apiUrl = 'http://localhost/Projetos_ETEC_PWEB-III_Div2/api/ingredientes/';
 
-                document.getElementById('frmProduto').addEventListener('submit', function (event) {
+                document.getElementById('frmIngrediente').addEventListener('submit', function (event) {
                     event.preventDefault();
                     let nome = document.getElementById('nome').value;
-                    let vlvenda = document.getElementById('vlvenda').value;
-                    let cat = document.getElementById('cat').value;
+                    let vlunitario = document.getElementById('vlunitario').value;
 
-                    fetch(`${apiUrl}iproduto.php?jsn=${JSON.stringify({ nome, vlvenda, cat })}`)
+                    fetch(`${apiUrl}iingrediente.php?jsn=${JSON.stringify({ nome, vlunitario })}`)
                         .then(response => response.text())
                         .then(() => {
-                            alert('Produto cadastrado com sucesso!');
+                            alert('Ingrediente cadastrado com sucesso!');
                             window.location.reload();
                         });
                 });
 
-                function carregarprodutos() {
-                    fetch(`${apiUrl}sproduto.php`)
+                function carregaringredientes() {
+                    fetch(`${apiUrl}singrediente.php`)
                         .then(response => response.json())
                         .then(data => {
-                            let gridProduto = document.getElementById('gridProduto');
-                            gridProduto.innerHTML = '';
+                            let gridIngrediente = document.getElementById('gridIngrediente');
+                            gridIngrediente.innerHTML = '';
                             data.forEach(ds => {
-                                let valorformato = Number(ds.vlvenda).toLocaleString('pt-Br', {
+                                let valorformato = Number(ds.valor).toLocaleString('pt-Br', {
                                 style: 'currency',
                                 currency: 'BRL'
-                                });
-                                gridProduto.innerHTML += `
+                            });
+                                gridIngrediente.innerHTML += `
                             <div class="row mt-2">
                                 <div class="col-sm-3">${ds.nome}</div>
                                 <div class="col-sm-2">${valorformato}</div>
-                                <div class="col-sm-1 me-2">${ds.categoria}</div>
                                 <div class="col-sm-4">
-                                    <button class="btn btn-warning" onclick="editarproduto(${ds.id}, '${ds.nome}', '${ds.vlvenda}', '${ds.cat}')">Editar</button>
-                                    <button class="btn btn-danger" onclick="deletarproduto(${ds.id}, '${ds.nome}')">Excluir</button>
+                                    <button class="btn btn-warning" onclick="editaringrediente(${ds.id}, '${ds.nome}', '${ds.valor}')">Editar</button>
+                                    <button class="btn btn-danger" onclick="deletaringrediente(${ds.id}, '${ds.nome}')">Excluir</button>
                                 </div>
                             </div>`;
                             });
                         });
                 }
 
-                function editarproduto(id, nome, vlvenda, cat) {
+                function editaringrediente(id, nome, valor) {
                     document.getElementById('nome').value = nome;
-                    document.getElementById('vlvenda').value = vlvenda;
-                    document.getElementById('cat').value = cat;
-                    const btn = document.querySelector('#frmProduto button[type="submit"]');
-                    const txt = document.querySelector('#frmProduto input[type="text"]');
+                    document.getElementById('vlunitario').value = valor;
+                    const btn = document.querySelector('#frmIngrediente button[type="submit"]');
+                    const txt = document.querySelector('#frmIngrediente input[type="text"]');
                     const btnLimpar = document.querySelector('#limpar');
-                    
                     btn.textContent = 'ATUALIZAR';
                     btn.classList.remove('btn-primary');
                     btn.classList.remove('btn-danger');
                     btn.classList.add('btn-warning');
                     txt.classList.remove('text-danger');
                     btnLimpar.classList.remove('d-none');
-                    
                     btn.onclick = function (event) {
                         event.preventDefault();
                         let unome = document.getElementById('nome').value;
-                        let uvlvenda = document.getElementById('vlvenda').value;
-                        let ucat = document.getElementById('cat').value;
-                        fetch(`${apiUrl}uproduto.php?jsn=${JSON.stringify({ nome: unome, vlvenda:uvlvenda, cat:ucat, id })}`)
+                        let uvlunitario = document.getElementById('vlunitario').value;
+                        fetch(`${apiUrl}uingrediente.php?jsn=${JSON.stringify({ nome: unome, valor:uvlunitario, id })}`)
                             .then(response => response.text())
                             .then(() => {
-                                alert('Produto alterado!');
+                                alert('Ingrediente alterado!');
                                 window.location.reload();
                             });
                     }
                 }
 
-                function deletarproduto(id, nome) {
+                function deletaringrediente(id, nome) {
                     document.getElementById('nome').value = 'Deseja realmente excluir ' + nome + '?';
-                    const btn = document.querySelector('#frmProduto button[type="submit"]');
-                    const txt = document.querySelector('#frmProduto input[type="text"]');
+                    const btn = document.querySelector('#frmIngrediente button[type="submit"]');
+                    const txt = document.querySelector('#frmIngrediente input[type="text"]');
                     const btnLimpar = document.querySelector('#limpar');
                     btn.textContent = 'EXCLUIR';
                     btn.classList.remove('btn-primary');
@@ -170,15 +142,15 @@
                     btnLimpar.classList.remove('d-none');
                     btn.onclick = function (event) {
                         event.preventDefault();
-                        fetch(`${apiUrl}dproduto.php?jsn=${JSON.stringify({ id })}`)
+                        fetch(`${apiUrl}dingrediente.php?jsn=${JSON.stringify({ id })}`)
                             .then(response => response.text())
                             .then(() => {
-                                alert('Produto Excluido!');
+                                alert('Ingrediente Excluido!');
                                 window.location.reload();
                             });
                     }
                 }
-                window.onload = carregarprodutos;
+                window.onload = carregaringredientes;
             </script>
         </main>
         <footer>

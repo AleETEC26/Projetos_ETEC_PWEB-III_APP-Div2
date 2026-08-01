@@ -19,10 +19,32 @@
                 <form id="frmCategoria">
                     <div class="mb-3">
                         <label for="nome">Categorias:</label>
-                        <input type="text" name="nome" id="nome" class="form-control" require>
+                        <input type="text" name="nome" id="nome" class="form-control" required>
                     </div>
                     <button type="submit" class="btn btn-primary">GRAVAR</button>
+                    <button type="button" id="limpar" class="btn btn-info d-none">LIMPAR</button>
                 </form>
+                <script>
+                    document.getElementById('limpar').addEventListener('click', limpar);
+                    function limpar(){
+                        const btnLimpar = document.querySelector('#limpar');
+                        const btnGravar = document.querySelector('#frmCategoria button[type="submit"]');
+                        const inputNome = document.querySelector('#nome');
+                        const txt = document.querySelector('#frmCategoria input[type="text"]');
+
+                        btnGravar.onclick = null;
+                        btnGravar.classList.remove('btn-danger');
+                        btnGravar.classList.remove('btn-warning');
+                        btnGravar.classList.add('btn-primary');
+                        btnGravar.textContent = 'GRAVAR';
+
+                        btnLimpar.classList.add('d-none');
+
+                        txt.classList.remove('text-danger');
+
+                        inputNome.value = '';
+                    }
+                </script>
             </div>
             <!-- Listagem visual HTML CSS -->
             <div class="container mt-3">
@@ -67,7 +89,10 @@
                                 gridCategoria.innerHTML += `
                             <div class="row mt-2">
                                 <div class="col-sm-3">${ds.nome}</div>
-                                <div class="col-sm-2">${ds.ativo ? 'ATIVO' : 'INATIVO'}</div>
+                                <div class="col-sm-2">${ds.ativo 
+                                    ? '<span class="text-success">ATIVO</span>' 
+                                    : '<span class="text-danger">INATIVO</span>'
+                                    }</div>
                                 <div class="col-sm-4">
                                     <button class="btn btn-warning" onclick="editarcategoria(${ds.id}, '${ds.nome}', '${ds.ativo}')">Editar</button>
                                     <button class="btn btn-danger" onclick="deletarcategoria(${ds.id}, '${ds.nome}')">Excluir</button>
@@ -80,9 +105,14 @@
                 function editarcategoria(id, nome, ativo) {
                     document.getElementById('nome').value = nome;
                     const btn = document.querySelector('#frmCategoria button[type="submit"]');
+                    const txt = document.querySelector('#frmCategoria input[type="text"]');
+                    const btnLimpar = document.querySelector('#limpar');
                     btn.textContent = 'ATUALIZAR';
                     btn.classList.remove('btn-primary');
-                    btn.classList.add('btn-success');
+                    btn.classList.remove('btn-danger');
+                    btn.classList.add('btn-warning');
+                    txt.classList.remove('text-danger');
+                    btnLimpar.classList.remove('d-none');
                     btn.onclick = function (event) {
                         event.preventDefault();
                         let unome = document.getElementById('nome').value;
@@ -99,10 +129,12 @@
                     document.getElementById('nome').value = 'Deseja realmente excluir ' + nome;
                     const btn = document.querySelector('#frmCategoria button[type="submit"]');
                     const txt = document.querySelector('#frmCategoria input[type="text"]');
+                    const btnLimpar = document.querySelector('#limpar');
                     btn.textContent = 'EXCLUIR';
                     btn.classList.remove('btn-primary');
                     btn.classList.add('btn-danger');
                     txt.classList.add('text-danger');
+                    btnLimpar.classList.remove('d-none');
                     btn.onclick = function (event) {
                         event.preventDefault();
                         fetch(`${apiUrl}dcategoria.php?jsn=${JSON.stringi({ id })}`)
